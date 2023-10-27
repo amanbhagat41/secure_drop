@@ -21,6 +21,8 @@ def secureShell():
     elif userInput == "add":
        cName = input("  Enter Full Name: ")
        cEmail = input("  Enter Email Address: ")
+       salt = bcrypt.gensalt()
+       cEmail = bcrypt.hashpw(cEmail, salt)
        contactAdd = [cName, cEmail]
        text_file = json.dumps(contactAdd)
        with open("contact.json", "a") as outfile:
@@ -28,6 +30,9 @@ def secureShell():
         print("Contact Added.")
     elif userInput == "list":
       print("Work In Progress")
+      with open("contact.json", "r") as outfile:
+        data = json.load(outfile)
+      print(data)
     elif userInput == "send":
        print("Work In Progress")
 
@@ -68,8 +73,10 @@ else:
         print("Exiting SecureDrop.")
         userInfo = [fullName, emailAdd, passwrd]
         json_file = json.dumps(userInfo)
+        #generate private key for authentication
         with open("users.json", "w") as outfile:
             outfile.write(json_file)
+          
 
 
 
