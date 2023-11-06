@@ -1,0 +1,5 @@
+pip install pyOpenSSL
+pip install py-bcrypt
+pip install maskpass 
+pip install pycryptodome 
+pip install pycrotodomex 

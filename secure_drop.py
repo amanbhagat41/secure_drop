@@ -1,12 +1,9 @@
-import io
 import json
 import os
 import maskpass
-import pwd
-import crypt
 import bcrypt
-import random, string
-import getpass
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
 
 def secureShell():
    while True:
@@ -25,12 +22,12 @@ def secureShell():
        cEmail = bcrypt.hashpw(cEmail, salt)
        contactAdd = [cName, cEmail]
        text_file = json.dumps(contactAdd)
-       with open("contact.json", "a") as outfile:
+       with open("contact.txt", "a") as outfile:
         outfile.write(text_file +  "\n")
         print("Contact Added.")
     elif userInput == "list":
       print("Work In Progress")
-      with open("contact.json", "r") as outfile:
+      with open("contact.txt", "r") as outfile:
         data = json.load(outfile)
       print(data)
     elif userInput == "send":
@@ -73,10 +70,9 @@ else:
         print("Exiting SecureDrop.")
         userInfo = [fullName, emailAdd, passwrd]
         json_file = json.dumps(userInfo)
+        # private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048)
+        # print(private_key)
         #generate private key for authentication
         with open("users.json", "w") as outfile:
             outfile.write(json_file)
-          
-
-
-
+            
