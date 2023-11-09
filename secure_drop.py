@@ -1,5 +1,6 @@
 import json
 import os
+from os import path
 import maskpass
 import bcrypt
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -20,14 +21,41 @@ def secureShell():
        cEmail = input("  Enter Email Address: ")
        salt = bcrypt.gensalt()
        cEmail = bcrypt.hashpw(cEmail, salt)
-       contactAdd = [cName, cEmail]
-       text_file = json.dumps(contactAdd)
-       with open("contact.txt", "a") as outfile:
-        outfile.write(text_file +  "\n")
-        print("Contact Added.")
+      #  if not os.path.exists("contact.json"):
+      #   with open("contact.json", "w") as f:
+      #       f.write("[]")
+      #   contacts = json.load(open("contact.json"))
+
+      #   with open('contact.json', 'w') as file:
+      #     json.dump(contacts, file, indent=4)
+
+
+
+
+       contacts = [
+          {"name": "",
+          "email": "",
+          }
+       ]
+       for contact in contacts:
+        contact['name'] =  cName
+        contact['email'] = cEmail
+        my_path = 'contact.json'
+        if path.exists(my_path):
+          with open(my_path , 'r') as file:
+           previous_json = json.load(file)
+           contacts = previous_json + contacts
+           with open(my_path , 'w') as file:
+            json.dump(contacts, file, indent=4)
+            print("Contact Added.")
+        elif (not path.exists(my_path)):
+           with open("contact.json", "w") as f:
+            json.dump(contacts, f, indent=4)
+            print("Contact Added.")
+        
     elif userInput == "list":
       print("Work In Progress")
-      with open("contact.txt", "r") as outfile:
+      with open("contact.json", "r") as outfile:
         data = json.load(outfile)
       print(data)
     elif userInput == "send":
