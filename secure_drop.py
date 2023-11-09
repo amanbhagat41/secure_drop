@@ -19,19 +19,8 @@ def secureShell():
     elif userInput == "add":
        cName = input("  Enter Full Name: ")
        cEmail = input("  Enter Email Address: ")
-       salt = bcrypt.gensalt()
-       cEmail = bcrypt.hashpw(cEmail, salt)
-      #  if not os.path.exists("contact.json"):
-      #   with open("contact.json", "w") as f:
-      #       f.write("[]")
-      #   contacts = json.load(open("contact.json"))
-
-      #   with open('contact.json', 'w') as file:
-      #     json.dump(contacts, file, indent=4)
-
-
-
-
+      #  salt = bcrypt.gensalt()
+      #  cEmail = bcrypt.hashpw(cEmail, salt)
        contacts = [
           {"name": "",
           "email": "",
@@ -52,7 +41,18 @@ def secureShell():
            with open("contact.json", "w") as f:
             json.dump(contacts, f, indent=4)
             print("Contact Added.")
-        
+        with open(my_path, "r+") as file:
+              # data = json.loads(open(my_path).read())
+              # id_number = data[1]["email"]
+              # if id_number in contacts:
+              #    print("found")
+              # print(id_number)
+     
+            content = file.read()
+            file.seek(0)
+            newC = content.replace("poop", "Pee")
+            file.truncate(0)
+            file.write(newC)
     elif userInput == "list":
       print("Work In Progress")
       with open("contact.json", "r") as outfile:
