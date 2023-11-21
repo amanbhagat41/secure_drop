@@ -1,46 +1,14 @@
 [
     {
+        "name": "EMPTY",
+        "email": "EMPTY"
+    },
+    {
         "name": "Aman",
-        "email": "a"
+        "email": "$2a$12$E5cR9HR44pEnQVctrmiGJ.JQzB0jK6L9XqMGPWe8WKnK9cb8SONXK"
     },
     {
-        "name": "m",
-        "email": "123"
-    },
-    {
-        "name": "Y",
-        "email": "123"
-    },
-    {
-        "name": "p",
-        "email": "q"
-    },
-    {
-        "name": "dog",
-        "email": "fight"
-    },
-    {
-        "name": "y",
-        "email": "fight"
-    },
-    {
-        "name": "o",
-        "email": "poop"
-    },
-    {
-        "name": "a",
-        "email": "123"
-    },
-    {
-        "name": "m",
-        "email": "123"
-    },
-    {
-        "name": "j",
-        "email": "q"
-    },
-    {
-        "name": "a",
-        "email": "123"
+        "name": "Zach",
+        "email": "$2a$12$wvv6JEHty6MP2y15UHA7W.1RupblHkJ80W9RHtJY/PDOeSEiSVCQK"
     }
 ]

@@ -5,10 +5,33 @@ import maskpass
 import bcrypt
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+from cryptography.fernet import Fernet
+import Crypto
+import string
+import random
+import server as s1
+import client as c1
+# from secure_drop.server import server
+
 
 def secureShell():
    while True:
+    s1.run_server()
+    #Here is where we will grab the key from the users.json
+    #set the key wit
+    # key = Fernet.generate_key()
+    # fernet = Fernet(key)
     userInput = input("secure_drop> ")
+    my_path = 'contact.json'
+    contacts = [
+          {"name": "EMPTY",
+          "email": "EMPTY",
+          }
+       ]
+    if (not path.exists(my_path)):
+      with open("contact.json", "w") as f:
+        json.dump(contacts, f, indent=4)
+        print("Contact Added.")
     if userInput == "exit":
       exit()
     elif userInput == "help":
@@ -17,43 +40,35 @@ def secureShell():
        print('  "send" -> Transfer file to contact')
        print('  "exit" -> Exit SecureDrop')
     elif userInput == "add":
+       alreadyAdded = 0
        cName = input("  Enter Full Name: ")
        cEmail = input("  Enter Email Address: ")
-      #  salt = bcrypt.gensalt()
-      #  cEmail = bcrypt.hashpw(cEmail, salt)
-       contacts = [
-          {"name": "",
-          "email": "",
-          }
-       ]
        for contact in contacts:
+        # salt = bcrypt.gensalt()
+        # cEmail = bcrypt.hashpw(cEmail, salt)
         contact['name'] =  cName
         contact['email'] = cEmail
-        my_path = 'contact.json'
-        if path.exists(my_path):
-          with open(my_path , 'r') as file:
-           previous_json = json.load(file)
-           contacts = previous_json + contacts
-           with open(my_path , 'w') as file:
-            json.dump(contacts, file, indent=4)
-            print("Contact Added.")
-        elif (not path.exists(my_path)):
-           with open("contact.json", "w") as f:
-            json.dump(contacts, f, indent=4)
-            print("Contact Added.")
+
         with open(my_path, "r+") as file:
-              # data = json.loads(open(my_path).read())
-              # id_number = data[1]["email"]
-              # if id_number in contacts:
-              #    print("found")
-              # print(id_number)
-     
-            content = file.read()
-            file.seek(0)
-            newC = content.replace("poop", "Pee")
-            file.truncate(0)
-            file.write(newC)
+          dict = json.load(file)
+          i = 0
+          for i in range(len(dict)):
+            if(dict[i]['email'] == cEmail):
+              alreadyAdded = 1
+              print("Email Exists, Overwriting Name")
+              dict[i]['name'] = cName
+              with open(my_path, 'w') as json_file:
+                json.dump(dict, json_file, indent = 4)
+        if(alreadyAdded == 0):
+         if path.exists(my_path):
+           with open(my_path , 'r') as file:
+            previous_json = json.load(file)
+            contacts = previous_json + contacts
+            with open(my_path , 'w') as file:
+             json.dump(contacts, file, indent=4)
+             print("Contact Added.")
     elif userInput == "list":
+      c1.run_client()
       print("Work In Progress")
       with open("contact.json", "r") as outfile:
         data = json.load(outfile)
@@ -61,6 +76,7 @@ def secureShell():
     elif userInput == "send":
        print("Work In Progress")
 
+#main--------------------------------------------------------------------------------------------
 if os.path.exists("users.json"): #returning users
     retUserEmail = input("Enter Email Address: ")
     retUserPassword = maskpass.askpass()
@@ -81,7 +97,10 @@ else:
     print("No users are registered with this client.")  #register new user
     inp = input("Do you want to register a new user? (y/n)")
     if inp == 'y':
-        
+        # generate the key here
+        res = ''.join(random.choices(string.ascii_uppercase +string.digits, k=10))
+        # print(res)
+        #now write it to the users.json
         fullName = input("Enter Full Name: ")
         emailAdd = input("Enter Email Address: ")
         while(True):
@@ -96,11 +115,10 @@ else:
         print("Passwords Matched")
         print("User Registered")
         print("Exiting SecureDrop.")
-        userInfo = [fullName, emailAdd, passwrd]
+        userInfo = [fullName, emailAdd, passwrd, res]
         json_file = json.dumps(userInfo)
         # private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048)
         # print(private_key)
         #generate private key for authentication
         with open("users.json", "w") as outfile:
             outfile.write(json_file)
-            
