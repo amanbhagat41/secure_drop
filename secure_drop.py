@@ -3,9 +3,9 @@ import os
 from os import path
 import maskpass
 import bcrypt
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-from cryptography.fernet import Fernet
+# from cryptography.hazmat.primitives.asymmetric import rsa
+# from cryptography.hazmat.primitives import serialization
+# from cryptography.fernet import Fernet
 import Crypto
 import string
 import random
