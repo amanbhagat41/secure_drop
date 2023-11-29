@@ -9,18 +9,14 @@ import bcrypt
 import Crypto
 import string
 import random
-import server as s1
-import client as c1
+import threading
+import socket
 # from secure_drop.server import server
 
 
 def secureShell():
    while True:
-    s1.run_server()
-    #Here is where we will grab the key from the users.json
-    #set the key wit
-    # key = Fernet.generate_key()
-    # fernet = Fernet(key)
+    #Start Socket
     userInput = input("secure_drop> ")
     my_path = 'contact.json'
     contacts = [
@@ -68,57 +64,58 @@ def secureShell():
              json.dump(contacts, file, indent=4)
              print("Contact Added.")
     elif userInput == "list":
-      c1.run_client()
       print("Work In Progress")
-      with open("contact.json", "r") as outfile:
-        data = json.load(outfile)
-      print(data)
+      #Send a ping to all open ports to see who is online on the localhost
+      #if it gets a response from someone, we know they are active
     elif userInput == "send":
        print("Work In Progress")
+       #once we know whos online and who is not, we will establish a connection for file sharing.
 
 #main--------------------------------------------------------------------------------------------
-if os.path.exists("users.json"): #returning users
-    retUserEmail = input("Enter Email Address: ")
-    retUserPassword = maskpass.askpass()
-    with open('users.json', "r") as openfile:
-      json_object = json.load(openfile)
-    userEmail = json_object[1]
-    userPassword = json_object[2]
-    if userEmail == retUserEmail:   #if user is a returning user check if passwords match
-      if bcrypt.checkpw(retUserPassword, userPassword):
-        print("Welcome to SecureDrop.")
-        print('Type "help" For Commands.')
-        secureShell()
+def main():
+  if os.path.exists("users.json"): #returning users
+      retUserEmail = input("Enter Email Address: ")
+      retUserPassword = maskpass.askpass()
+      with open('users.json', "r") as openfile:
+        json_object = json.load(openfile)
+      userEmail = json_object[1]
+      userPassword = json_object[2]
+      if userEmail == retUserEmail:   #if user is a returning user check if passwords match
+        if bcrypt.checkpw(retUserPassword, userPassword):
+          print("Welcome to SecureDrop.")
+          print('Type "help" For Commands.')
+          secureShell()
+        else:
+          print("Wrong Password")
       else:
-        print("Wrong Password")
-    else:
-       print("No Email Matches")
-else:
-    print("No users are registered with this client.")  #register new user
-    inp = input("Do you want to register a new user? (y/n)")
-    if inp == 'y':
-        # generate the key here
-        res = ''.join(random.choices(string.ascii_uppercase +string.digits, k=10))
-        # print(res)
-        #now write it to the users.json
-        fullName = input("Enter Full Name: ")
-        emailAdd = input("Enter Email Address: ")
-        while(True):
-            passwrd = maskpass.askpass()
-            passwrdCheck = maskpass.askpass()
-            if passwrd != passwrdCheck:
-                print("Passwords Do Not Match! Try Again")
-            if passwrd == passwrdCheck:
-                break
-        salt = bcrypt.gensalt()
-        passwrd = bcrypt.hashpw(passwrd, salt)  #encrypt password   
-        print("Passwords Matched")
-        print("User Registered")
-        print("Exiting SecureDrop.")
-        userInfo = [fullName, emailAdd, passwrd, res]
-        json_file = json.dumps(userInfo)
-        # private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048)
-        # print(private_key)
-        #generate private key for authentication
-        with open("users.json", "w") as outfile:
-            outfile.write(json_file)
+        print("No Email Matches")
+  else:
+      print("No users are registered with this client.")  #register new user
+      inp = input("Do you want to register a new user? (y/n)")
+      if inp == 'y':
+          # generate the key here
+          res = ''.join(random.choices(string.ascii_uppercase +string.digits, k=10))
+          # print(res)
+          #now write it to the users.json
+          fullName = input("Enter Full Name: ")
+          emailAdd = input("Enter Email Address: ")
+          while(True):
+              passwrd = maskpass.askpass()
+              passwrdCheck = maskpass.askpass()
+              if passwrd != passwrdCheck:
+                  print("Passwords Do Not Match! Try Again")
+              if passwrd == passwrdCheck:
+                  break
+          salt = bcrypt.gensalt()
+          passwrd = bcrypt.hashpw(passwrd, salt)  #encrypt password   
+          print("Passwords Matched")
+          print("User Registered")
+          print("Exiting SecureDrop.")
+          userInfo = [fullName, emailAdd, passwrd, res]
+          json_file = json.dumps(userInfo)
+          # private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048)
+          # print(private_key)
+          #generate private key for authentication
+          with open("users.json", "w") as outfile:
+              outfile.write(json_file)
+main()
