@@ -1,12 +1,15 @@
 import socket
 import threading
-import os
-def start_client():
+
+def start_client(email):
     HOST = '127.0.0.1'
-    PORT = 9999
+    PORT = 6969
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((HOST, PORT))
+
+    # Send the email address to the server
+    client_socket.send(email.encode('utf-8'))
 
     def receive_messages():
         while True:
@@ -15,7 +18,7 @@ def start_client():
 
     receive_thread = threading.Thread(target=receive_messages)
     receive_thread.start()
-
+    recipient_email = input("Enter recipient's email: ")
     while True:
         message = input("Enter your message: ")
-        client_socket.send(message.encode('utf-8'))
+        client_socket.send(f"{recipient_email}:{message}".encode('utf-8'))

@@ -2,7 +2,7 @@ import socket
 import threading
 
 HOST = '127.0.0.1'
-PORT = 9999
+PORT = 6969
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((HOST, PORT))
@@ -10,47 +10,32 @@ server_socket.listen()
 
 print(f"Server is listening on {HOST}:{PORT}")
 
-clients = []
-
-def broadcast(message, sender_address):
-    for client_socket, address in clients:
-        if address != sender_address:
-            try:
-                client_socket.send(message.encode('utf-8'))
-            except socket.error:
-                # Handle disconnected client (optional)
-                print(f"Connection from {address} closed.")
-                clients.remove((client_socket, address))
-                client_socket.close()
+client_info = {}  # Dictionary to store client information (email: (socket, address))
 
 def handle_client(client_socket, address):
     print(f"Accepted connection from {address}")
-    clients.append((client_socket, address))
-    
-    # Notify all clients about the new connection
-    broadcast(f"{address} has joined the chat.", address)
+
+    email = client_socket.recv(1024).decode('utf-8')
+    client_info[email] = (client_socket, address)
 
     while True:
-        try:
-            data = client_socket.recv(1024).decode('utf-8')
-            if not data:
-                break
-
-            print(f"Received from {address}: {data}")
-            broadcast(f"{address}: {data}", address)
-
-        except socket.error:
-            # Handle disconnected client (optional)
-            print(f"Connection from {address} closed.")
-            clients.remove((client_socket, address))
-            client_socket.close()
+        data = client_socket.recv(1024).decode('utf-8')
+        if not data:
             break
 
+        print(f"Received from {address}: {data}")
+
+        # Send the message to the specified recipient
+        recipient_email, message = data.split(':', 1)
+        if recipient_email in client_info:
+            recipient_socket, _ = client_info[recipient_email]
+            recipient_socket.send(f"{address}: {message}".encode('utf-8'))
+        else:
+            print(f"Recipient {recipient_email} not found.")
+
     print(f"Connection from {address} closed.")
-    clients.remove((client_socket, address))
+    del client_info[email]
     client_socket.close()
-    # Notify all clients about the disconnection
-    broadcast(f"{address} has left the chat.", address)
 
 while True:
     client_socket, address = server_socket.accept()
