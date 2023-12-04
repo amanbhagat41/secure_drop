@@ -12,6 +12,7 @@ import random
 import threading
 import socket
 # from secure_drop.server import server
+import client as client
 
 
 def secureShell():
@@ -68,6 +69,7 @@ def secureShell():
       #Send a ping to all open ports to see who is online on the localhost
       #if it gets a response from someone, we know they are active
     elif userInput == "send":
+       client.start_client()
        print("Work In Progress")
        #once we know whos online and who is not, we will establish a connection for file sharing.
 
