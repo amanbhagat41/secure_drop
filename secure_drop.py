@@ -1,4 +1,5 @@
 import json
+import sys
 import os
 from os import path
 import maskpass
@@ -6,19 +7,21 @@ import bcrypt
 # from cryptography.hazmat.primitives.asymmetric import rsa
 # from cryptography.hazmat.primitives import serialization
 # from cryptography.fernet import Fernet
-import Crypto
 import string
 import random
-import threading
-import socket
 # from secure_drop.server import server
-import client as client
+from client import ChatClient
 
 
 def secureShell():
-   while True:
-    #Start Socket
-    userInput = input("secure_drop> ")
+   #Start Client
+  with open('users.json', "r") as openfile:
+    json_object = json.load(openfile)
+  myChat = ChatClient(json_object[1])
+  while True:
+    selection = input("secure_drop> ")
+    userInput = selection.split(' ', 1)[0]
+    #print(userInput)
     my_path = 'contact.json'
     contacts = [
           {"name": "EMPTY",
@@ -30,7 +33,9 @@ def secureShell():
         json.dump(contacts, f, indent=4)
         print("Contact Added.")
     if userInput == "exit":
+      # myChat.stop()
       exit()
+      #Close Client Socket
     elif userInput == "help":
        print('  "add"  -> Add a new contact')
        print('  "list" -> List all online contacts')
@@ -65,14 +70,18 @@ def secureShell():
              json.dump(contacts, file, indent=4)
              print("Contact Added.")
     elif userInput == "list":
-      print("Work In Progress")
+      print(myChat.getOnlineUsers())
       #Send a ping to all open ports to see who is online on the localhost
       #if it gets a response from someone, we know they are active
     elif userInput == "send":
-       print("Enter your email address")
-       clientEmail = input()
-       client.start_client(clientEmail)
-       print("Work In Progress")
+      recipient_emailSend = selection.split(' ', 2)[1]
+      file_path = selection.split(' ', 2)[2]
+      myChat.send_file(recipient_emailSend, file_path)
+      # recipient_email = input("Enter recipient's email: ")
+      #sending file logic here, might be myChat.send_file(parameters)
+    elif userInput == "listen":
+      myChat.receive_file()
+      print("Work In Progress")
        #once we know whos online and who is not, we will establish a connection for file sharing.
 
 #main--------------------------------------------------------------------------------------------
@@ -102,7 +111,7 @@ def main():
           # print(res)
           #now write it to the users.json
           fullName = input("Enter Full Name: ")
-          emailAdd = input("Enter Email Address: ")
+          emailAdd = input("--Enter Email Address: ")
           while(True):
               passwrd = maskpass.askpass()
               passwrdCheck = maskpass.askpass()
