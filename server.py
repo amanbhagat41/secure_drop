@@ -10,7 +10,7 @@ def handle_client(command_socket, address, file_socket, faddress):
     print(f"Accepted connection from {address}")
 
     email = command_socket.recv(1024).decode('utf-8')
-    client_info[email] = (command_socket, address)
+    client_info[email] = (file_socket, faddress)
 
     while True:
         data = command_socket.recv(1024).decode('utf-8')
@@ -36,8 +36,9 @@ def handle_client(command_socket, address, file_socket, faddress):
             return
         elif selection == "send_user_file":
             print("WIP")
-            file_socket_handler = threading.Thread(target=fileTransfer, args=(file_socket, faddress))
-            file_socket_handler.start()
+            fileTransfer(file_socket, faddress)
+            # file_socket_handler = threading.Thread(target=fileTransfer, args=(file_socket, faddress))
+            # file_socket_handler.start()
             
 
     del client_info[email]
@@ -53,8 +54,50 @@ def fileTransfer(file_socket, faddress):
         ack = file_socket.recv(1024).decode('utf-8') #recieves sendingFileName
         if(ack == 'sendingFileName'):
             file_socket.send(f'sendFileName'.encode('utf-8'))
-            file_path = file_socket.recv(1024).decode('utf-8')
-            print(file_path)
+            file_name = file_socket.recv(1024).decode('utf-8')
+            print("Server Recieved File Name: {}".format(file_name))
+            file_socket.send(f'sendSendersEmail'.encode('utf-8'))
+            sendersEmail = file_socket.recv(1024).decode('utf-8')
+            print("Server Recieved Senders Email: {}".format(sendersEmail))
+            file_socket.send(f'sendRecipientEmail'.encode('utf-8'))
+            recipient_email = file_socket.recv(1024).decode('utf-8')
+            print("Server Recieved Recipient: {}".format(recipient_email))
+            file_socket.send(f'serverSendingAlert'.encode('utf-8'))
+            ack = file_socket.recv(1024).decode('utf-8')
+            if(ack == "sendAlert"):
+                print("Sending Alert to Recipient (WIP)")
+                if recipient_email in client_info:
+                    recipient_socket, _ = client_info[recipient_email]
+                    print("Found Recipient")
+                    recipient_socket.send(f'sendingInformation'.encode('utf-8'))
+                    ack = recipient_socket.recv(1024).decode('utf-8')
+                    if(ack == "sendReady"):
+                        recipient_socket.send(f'{sendersEmail}'.encode('utf-8'))
+                        ack = recipient_socket.recv(1024).decode('utf-8')
+                        if(ack == "emailRecieved"):
+                            recipient_socket.send(f'{file_name}'.encode('utf-8'))
+                            ack = recipient_socket.recv(1024).decode('utf-8')
+                            if(ack == "fileNameRecieved"):
+                                recipient_socket.send(f'AlertUser'.encode('utf-8'))
+                                ack = recipient_socket.recv(1024).decode('utf-8')
+                                if(ack == "Accepted"):
+                                    print("Recipient Accepted Request")
+                                    file_socket.send(f'RecipientAccepted'.encode('utf-8'))
+                                    with open("fileTransfer.txt", "wb") as f:
+                                        while True:
+                                            # read 1024 bytes from the socket (receive)
+                                            bytes_read = file_socket.recv(1024)
+                                            if not bytes_read:    
+                                                # nothing is received
+                                                # file transmitting is done
+                                                f.close()
+                                                break
+                                            # write to the file the bytes we just received
+                                            f.write(bytes_read)
+                                        
+                                        print("File Transferred to Recipient")
+                                elif(ack == "Rejected"):
+                                    print("Recipient Denied Transfer")
 
 if __name__ == '__main__':
     try:
@@ -77,3 +120,4 @@ if __name__ == '__main__':
         print("\nTurning Off Server.........")
     finally:
         server_socket.close()
+        file_command.close()
