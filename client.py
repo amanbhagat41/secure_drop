@@ -3,8 +3,8 @@ import os
 class ChatClient:
     def __init__(self, myEmail):
         self.HOST = '127.0.0.1'
-        self.PORT = 5555
-        self.FILEPORT = 5556
+        self.PORT = 1111
+        self.FILEPORT = 1112
         self.command_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.command_socket.connect((self.HOST, self.PORT))
         self.command_socket.send(myEmail.encode('utf-8'))
@@ -39,27 +39,28 @@ class ChatClient:
 
                             # Check if bytes_read is empty and it's not just the sentinel value
                             if not bytes_read: 
-                                print("No longer bytes being read")
+                                # print("No longer bytes being read")
                                 break
 
                             f.write(bytes_read)
                         f.close()    
-                        print("File Transferred to Recipient")
+                        # print("File Transferred to Recipient")
                     print("File Transferred Successfully")
                     return
                 elif(response == 'n' or response =='N'):
                     self.file_socket.send(f'Rejected'.encode('utf-8'))
+                    return
     def send_file(self, recipient_email, file_path):
-        print("WIP")
+        # print("WIP")
         self.command_socket.send(b"send_user_file")
         file_name = os.path.basename(file_path)
         ack = self.file_socket.recv(1024).decode('utf-8')
         if(ack == 'fileTransferReady'):
-            print("WE ARE READY")
+            # print("WE ARE READY")
             self.file_socket.send(f'clientSideAcknowledge'.encode('utf-8'))
             ack = self.file_socket.recv(1024).decode('utf-8')
             if(ack == "initiate"):
-                print("KEEP GOING ITS WORKING!!!!")
+                # print("KEEP GOING ITS WORKING!!!!")
                 #Send to Server--------------------
                 self.file_socket.send(f'sendingFileName'.encode('utf-8'))
                 ack = self.file_socket.recv(1024).decode('utf-8')
@@ -69,19 +70,19 @@ class ChatClient:
                         #senders email
                     ack = self.file_socket.recv(1024).decode('utf-8')
                     if ack == "sendSendersEmail":
-                        print("Sending sendersEmail {}".format(self.myEmail))
+                        # print("Sending sendersEmail {}".format(self.myEmail))
                         self.file_socket.send(f'{self.myEmail}'.encode('utf-8'))
                         ack = self.file_socket.recv(1024).decode('utf-8')
                         if ack == "sendRecipientEmail":
-                            print("Sending RecipientEmail")
+                            # print("Sending RecipientEmail")
                             self.file_socket.send(f'{recipient_email}'.encode('utf-8'))
                             ack = self.file_socket.recv(1024).decode('utf-8')
                             if ack == "serverSendingAlert":
-                                print("Sending Alert")
+                                # print("Sending Alert")
                                 self.file_socket.send(f'sendAlert'.encode('utf-8'))
                                 ack = self.file_socket.recv(1024).decode('utf-8')
                                 if (ack == "RecipientAccepted"):
-                                    print("RECIPENTE ACCPETED WHOO")
+                                    # print("RECIPENTE ACCPETED WHOO")
                                     try:
                                         with open(file_path, "rb") as f:
                                             while True:
@@ -97,7 +98,7 @@ class ChatClient:
                                     except KeyboardInterrupt:
                                         print("Force Closing...")
                                         
-                                    print("File Transferred to server")
+                                    # print("File Transferred to server")
                                     self.file_socket.sendall(b"END_OF_FILE")
                                     f.close()
                                     

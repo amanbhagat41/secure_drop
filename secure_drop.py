@@ -81,7 +81,6 @@ def secureShell():
       #sending file logic here, might be myChat.send_file(parameters)
     elif userInput == "listen":
       myChat.receive_file()
-      print("Work In Progress")
        #once we know whos online and who is not, we will establish a connection for file sharing.
 
 #main--------------------------------------------------------------------------------------------

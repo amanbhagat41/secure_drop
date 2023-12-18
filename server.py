@@ -3,8 +3,8 @@ import threading
 import os
 
 HOST = '127.0.0.1'
-PORT = 5555
-FILEPORT = 5556
+PORT = 1111
+FILEPORT = 1112
 client_info = {}  # Dictionary to store client information (email: (socket, address))
 
 def handle_client(command_socket, address, file_socket, faddress):
@@ -36,7 +36,7 @@ def handle_client(command_socket, address, file_socket, faddress):
                 print(f"Error sending response to {address}: {e}")
             return
         elif selection == "send_user_file":
-            print("WIP")
+            # print("WIP")
 
             fileTransfer(file_socket, faddress)
             # file_socket_handler = threading.Thread(target=fileTransfer, args=(file_socket, faddress))

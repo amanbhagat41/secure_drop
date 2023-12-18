@@ -2,3 +2,7 @@ cryptography==41.0.5
 maskpass==0.3.7
 pycryptodome==3.19.0
 python_bcrypt==0.3.2
+py-bcrypt==0.4
+pycrypto==2.6.1
+pycryptodomex==3.19.0
+pyOpenSSL==23.3.0
