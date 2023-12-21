@@ -40,6 +40,7 @@ def secureShell():
        print('  "add"  -> Add a new contact')
        print('  "list" -> List all online contacts')
        print('  "send" -> Transfer file to contact')
+       print('  "recv" -> Recieve a file from a contact')
        print('  "exit" -> Exit SecureDrop')
     elif userInput == "add":
        alreadyAdded = 0
@@ -61,6 +62,8 @@ def secureShell():
               dict[i]['name'] = cName
               with open(my_path, 'w') as json_file:
                 json.dump(dict, json_file, indent = 4)
+                json_file.close()
+        file.close()
         if(alreadyAdded == 0):
          if path.exists(my_path):
            with open(my_path , 'r') as file:
@@ -71,6 +74,7 @@ def secureShell():
              print("Contact Added.")
     elif userInput == "list":
       print(myChat.getOnlineUsers())
+      
       #Send a ping to all open ports to see who is online on the localhost
       #if it gets a response from someone, we know they are active
     elif userInput == "send":
@@ -79,8 +83,8 @@ def secureShell():
       myChat.send_file(recipient_emailSend, file_path)
       # recipient_email = input("Enter recipient's email: ")
       #sending file logic here, might be myChat.send_file(parameters)
-    elif userInput == "listen":
-      myChat.receive_file()
+    elif userInput == "recv":
+      myChat.receive_file(my_path)
        #once we know whos online and who is not, we will establish a connection for file sharing.
 
 #main--------------------------------------------------------------------------------------------
@@ -98,9 +102,9 @@ def main():
           print('Type "help" For Commands.')
           secureShell()
         else:
-          print("Wrong Password")
+          print("Email and Password Combination Invalid.")
       else:
-        print("No Email Matches")
+        print("Email and Password Combination Invalid.")
   else:
       print("No users are registered with this client.")  #register new user
       inp = input("Do you want to register a new user? (y/n)")
@@ -110,7 +114,7 @@ def main():
           # print(res)
           #now write it to the users.json
           fullName = input("Enter Full Name: ")
-          emailAdd = input("--Enter Email Address: ")
+          emailAdd = input("Enter Email Address: ")
           while(True):
               passwrd = maskpass.askpass()
               passwrdCheck = maskpass.askpass()
