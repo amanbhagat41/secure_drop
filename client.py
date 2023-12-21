@@ -1,7 +1,7 @@
 import socket
 import os
 import json
-
+import ssl
 class ChatClient:
     def __init__(self, myEmail):
         self.HOST = '127.0.0.1'
@@ -14,7 +14,10 @@ class ChatClient:
         self.file_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.file_socket.connect((self.HOST, self.FILEPORT))
 
-       
+        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        context.load_verify_locations('server.crt')
+        self.file_socket = context.wrap_socket(self.file_socket, server_hostname='127.0.0.1')
+
         self.myEmail = myEmail
     def receive_file(self, my_path):
         try:
@@ -27,45 +30,38 @@ class ChatClient:
                 self.file_socket.send(f'emailRecieved'.encode('utf-8'))
                 fileName = self.file_socket.recv(1024).decode('utf-8')
                 self.file_socket.send(f'fileNameRecieved'.encode('utf-8'))
+                
                 with open(my_path, "r") as file:
                     isContact = 0
                     dict = json.load(file)
-                    i = 0
                     for i in range(len(dict)):
                         if(dict[i]['email'] == sendersEmail):
                             print("Contact Found")
                             isContact = 1
-                file.close()
+
                 if(isContact == 1):
                     self.file_socket.send(f'isContact'.encode('utf-8'))
                     print("Waiting for Receive of User Alert")
                     ack = self.file_socket.recv(1024).decode('utf-8')
                     if(ack == "AlertUser"):
                         print("Recieved User Alert Command")
-                        response = input("Contact {} is sending a file '({})'\n Do you Accept? (y/n) ".format(sendersEmail, fileName))
-                        if(response == 'y' or response =='Y'):
+                        response = input(f"Contact {sendersEmail} is sending a file '{fileName}'\n Do you Accept? (y/n) ")
+                        if response.lower() == 'y':
                             self.file_socket.send(f'Accepted'.encode('utf-8'))
-                            with open(fileName + 'copy', "wb") as f:
+                            os.makedirs('downloads', exist_ok=True)  # Ensure 'downloads' directory exists
+                            file_path = os.path.join('downloads', fileName)
+                            with open(file_path, "wb") as f:
                                 while True:
                                     bytes_read = self.file_socket.recv(1024)
-
                                     if bytes_read == b"END_OF_FILE":
                                         print("End of file received")
                                         break
-
-                                    # Check if bytes_read is empty and it's not just the sentinel value
-                                    if not bytes_read: 
-                                        # print("No longer bytes being read")
+                                    if not bytes_read:
                                         break
-
                                     f.write(bytes_read)
-                                f.close()    
-                                # print("File Transferred to Recipient")
                             print("File Transferred Successfully")
-                            return
-                        elif(response == 'n' or response =='N'):
+                        else:
                             self.file_socket.send(f'Rejected'.encode('utf-8'))
-                            return
                 else:
                     print("Not a Contact")
                     self.file_socket.send(f'notContact'.encode('utf-8'))
@@ -108,7 +104,6 @@ class ChatClient:
                                     return
                                 if(ack == "UserOnline"):
                                     ack = self.file_socket.recv(1024).decode('utf-8')
-                                    print(ack + " message received")
                                     if(ack == "notAContact"):
                                         print("Recipient Doesnt Have You As A Contact!") 
                                         return   
@@ -143,5 +138,4 @@ class ChatClient:
         except Exception as e:
             print(f"Error receiving response: {e}")
         users = response.split(',')
-        print("Fetched users online")
         return users

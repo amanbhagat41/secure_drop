@@ -1,11 +1,15 @@
 import socket
 import threading
 import os
-
+import ssl
 HOST = '127.0.0.1'
 PORT = 5555
 FILEPORT = 5556
 client_info = {}  # Dictionary to store client information (email: (socket, address))
+
+# SSL context setup
+context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+context.load_cert_chain(certfile="server.crt", keyfile="server.key")
 
 def handle_client(command_socket, address, file_socket, faddress):
     try:
@@ -161,7 +165,9 @@ if __name__ == '__main__':
         while True:
             command_socket, address = server_socket.accept()
             file_socket, faddress = file_command.accept()
-            client_handler = threading.Thread(target=handle_client, args=(command_socket, address, file_socket, faddress))
+            secure_file_socket = context.wrap_socket(file_socket, server_side=True)
+
+            client_handler = threading.Thread(target=handle_client, args=(command_socket, address, secure_file_socket, faddress))
             client_handler.start()
     except KeyboardInterrupt:
         print("\nTurning Off Server.........")

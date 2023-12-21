@@ -4,14 +4,7 @@ import os
 from os import path
 import maskpass
 import bcrypt
-# from cryptography.hazmat.primitives.asymmetric import rsa
-# from cryptography.hazmat.primitives import serialization
-# from cryptography.fernet import Fernet
-import string
-import random
-# from secure_drop.server import server
 from client import ChatClient
-
 
 def secureShell():
    #Start Client
@@ -21,7 +14,6 @@ def secureShell():
   while True:
     selection = input("secure_drop> ")
     userInput = selection.split(' ', 1)[0]
-    #print(userInput)
     my_path = 'contact.json'
     contacts = [
           {"name": "EMPTY",
@@ -33,9 +25,7 @@ def secureShell():
         json.dump(contacts, f, indent=4)
         print("Contact Added.")
     if userInput == "exit":
-      # myChat.stop()
       exit()
-      #Close Client Socket
     elif userInput == "help":
        print('  "add"  -> Add a new contact')
        print('  "list" -> List all online contacts')
@@ -47,8 +37,6 @@ def secureShell():
        cName = input("  Enter Full Name: ")
        cEmail = input("  Enter Email Address: ")
        for contact in contacts:
-        # salt = bcrypt.gensalt()
-        # cEmail = bcrypt.hashpw(cEmail, salt)
         contact['name'] =  cName
         contact['email'] = cEmail
 
@@ -73,8 +61,15 @@ def secureShell():
              json.dump(contacts, file, indent=4)
              print("Contact Added.")
     elif userInput == "list":
-      print(myChat.getOnlineUsers())
-      
+      allOnlineUsers = myChat.getOnlineUsers()
+      with open(my_path, 'r') as file:
+        data = json.load(file)
+      with open("users.json", 'r') as file:
+        userData = json.load(file)
+      userEmail = userData[1]
+      for item in data:
+        if item['email'] != userEmail and item['email'] in allOnlineUsers:
+          print(f"[ONLINE] Name: {item['name']}, Email: {item['email']}")
       #Send a ping to all open ports to see who is online on the localhost
       #if it gets a response from someone, we know they are active
     elif userInput == "send":
@@ -110,7 +105,6 @@ def main():
       inp = input("Do you want to register a new user? (y/n)")
       if inp == 'y':
           # generate the key here
-          res = ''.join(random.choices(string.ascii_uppercase +string.digits, k=10))
           # print(res)
           #now write it to the users.json
           fullName = input("Enter Full Name: ")
@@ -127,11 +121,8 @@ def main():
           print("Passwords Matched")
           print("User Registered")
           print("Exiting SecureDrop.")
-          userInfo = [fullName, emailAdd, passwrd, res]
+          userInfo = [fullName, emailAdd, passwrd]
           json_file = json.dumps(userInfo)
-          # private_key = rsa.generate_private_key(public_exponent=65537,key_size=2048)
-          # print(private_key)
-          #generate private key for authentication
           with open("users.json", "w") as outfile:
               outfile.write(json_file)
 main()
