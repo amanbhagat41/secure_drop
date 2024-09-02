@@ -83,7 +83,7 @@ How to use:
 -   The send command allows you to send a file
 -   The recv command lets you recieve the file sent to you
 
-Once you have a friend added the person recieveing the file will type in the recv command and the person sending the file will type in send. After that the sender will input the path to the file they want to send and the reciever will have an option to either acept or decline the file. Once they accept the file the file is sent over to them.
+Once you have a friend added the person recieveing the file will type in the recv command and the person sending the file will type in send. After that the sender will input the path to the file they want to send and the reciever will have an option to either accept or decline the file. Once they accept the file the file is sent over to them.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
